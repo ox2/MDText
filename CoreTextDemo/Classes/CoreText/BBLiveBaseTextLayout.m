@@ -77,8 +77,8 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
 
             CTRunDelegateRef delegate = (__bridge CTRunDelegateRef)[runAttributes valueForKey:(id)kCTRunDelegateAttributeName];
 
-            NSDictionary * metaDic = CTRunDelegateGetRefCon(delegate);
-            if (![metaDic isKindOfClass:[NSDictionary class]]) continue;
+            BBLiveBaseTextRunDelegate * runDelegate = CTRunDelegateGetRefCon(delegate);
+            if (![runDelegate isKindOfClass:[BBLiveBaseTextRunDelegate class]]) continue;
 
             CGRect runBounds = CGRectZero;
             CGFloat ascent = 0;
@@ -195,6 +195,66 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
     CGFloat width = (CGFloat)CTLineGetTypographicBounds(line, &ascent, &descent, &leading);
     CGFloat height = ascent + descent;
     return CGRectMake(point.x, point.y - descent, width, height);
+}
+
+@end
+
+@implementation BBLiveBaseTextRunDelegate
+
+static void deallocCallback(void *ref) {
+    BBLiveBaseTextRunDelegate *self = (__bridge_transfer BBLiveBaseTextRunDelegate *)(ref);
+    self = nil; // release
+}
+
+static CGFloat ascentCallback(void *ref){
+    BBLiveBaseTextRunDelegate *delegate = (__bridge BBLiveBaseTextRunDelegate *)(ref);
+    return delegate.ascent;
+}
+
+static CGFloat descentCallback(void *ref){
+    BBLiveBaseTextRunDelegate *delegate = (__bridge BBLiveBaseTextRunDelegate *)(ref);
+    return delegate.descent;
+}
+
+static CGFloat widthCallback(void* ref){
+    BBLiveBaseTextRunDelegate *delegate = (__bridge BBLiveBaseTextRunDelegate *)(ref);
+    return delegate.width;
+}
+
+- (nullable CTRunDelegateRef)CTRunDelegate CF_RETURNS_RETAINED {
+    CTRunDelegateCallbacks callbacks;
+    memset(&callbacks, 0, sizeof(CTRunDelegateCallbacks));
+    callbacks.version = kCTRunDelegateCurrentVersion;
+    callbacks.getAscent = ascentCallback;
+    callbacks.getDescent = descentCallback;
+    callbacks.getWidth = widthCallback;
+    callbacks.dealloc = deallocCallback;
+    return CTRunDelegateCreate(&callbacks, (__bridge_retained void *)(self));
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [aCoder encodeObject:@(_ascent) forKey:@"ascent"];
+    [aCoder encodeObject:@(_descent) forKey:@"descent"];
+    [aCoder encodeObject:@(_width) forKey:@"width"];
+    [aCoder encodeObject:_userInfo forKey:@"userInfo"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super init];
+    _ascent = ((NSNumber *)[aDecoder decodeObjectForKey:@"ascent"]).floatValue;
+    _descent = ((NSNumber *)[aDecoder decodeObjectForKey:@"descent"]).floatValue;
+    _width = ((NSNumber *)[aDecoder decodeObjectForKey:@"width"]).floatValue;
+    _userInfo = [aDecoder decodeObjectForKey:@"userInfo"];
+    return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    typeof(self) one = [self.class new];
+    one.ascent = self.ascent;
+    one.descent = self.descent;
+    one.width = self.width;
+    one.userInfo = self.userInfo;
+    return one;
 }
 
 @end

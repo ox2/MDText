@@ -71,41 +71,22 @@
     return _attributedString;
 }
 
-static CGFloat ascentCallback(void *ref){
-    return [(NSNumber*)[(__bridge NSDictionary*)ref objectForKey:@"ascent"] floatValue];
-}
-
-static CGFloat descentCallback(void *ref){
-    return [(NSNumber*)[(__bridge NSDictionary*)ref objectForKey:@"descent"] floatValue];
-}
-
-static CGFloat widthCallback(void* ref){
-    return [(NSNumber*)[(__bridge NSDictionary*)ref objectForKey:@"width"] floatValue];
-}
-
 + (NSAttributedString *)emptyAttributedStringWithWidth:(CGFloat)width
                                                 ascent:(CGFloat)ascent
                                                descent:(CGFloat)descent
                                             attributes:(NSDictionary *)attributes {
-    CTRunDelegateCallbacks callbacks;
-    memset(&callbacks, 0, sizeof(CTRunDelegateCallbacks));
-    callbacks.version = kCTRunDelegateVersion1;
-    callbacks.getAscent = ascentCallback;
-    callbacks.getDescent = descentCallback;
-    callbacks.getWidth = widthCallback;
-    NSDictionary *dict = @{
-                           @"ascent": @(ascent),
-                           @"descent": @(descent),
-                           @"width": @(width),
-                           };
-    CTRunDelegateRef delegate = CTRunDelegateCreate(&callbacks, (__bridge_retained void *)(dict));
+    BBLiveBaseTextRunDelegate *delegate = [[BBLiveBaseTextRunDelegate alloc] init];
+    delegate.ascent = ascent;
+    delegate.descent = descent;
+    delegate.width = width;
+    CTRunDelegateRef delegateRef = delegate.CTRunDelegate;
 
     unichar objectReplacementChar = 0xFFFC; // 占位符
     NSString * content = [NSString stringWithCharacters:&objectReplacementChar length:1];
     NSMutableAttributedString * space = [[NSMutableAttributedString alloc] initWithString:content attributes:attributes];
     CFAttributedStringSetAttribute((CFMutableAttributedStringRef)space, CFRangeMake(0, 1),
-                                   kCTRunDelegateAttributeName, delegate);
-    CFRelease(delegate);
+                                   kCTRunDelegateAttributeName, delegateRef);
+    CFRelease(delegateRef);
     return space;
 }
 

@@ -34,7 +34,7 @@
     if (!self.timer) {
         __weak typeof(self) ws = self;
         self.timer = [NSTimer timerWithTimeInterval:0.1f repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [self.viewModels addObject:[CellViewModel new]];
+            [ws.viewModels addObject:[CellViewModel new]];
             [ws.tableView reloadData];
         }];
         [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
@@ -44,6 +44,7 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     if (self.timer) {
+        [self.timer invalidate];
         self.timer = nil;
     }
 }

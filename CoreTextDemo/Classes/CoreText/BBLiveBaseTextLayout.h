@@ -42,4 +42,17 @@ UIKIT_EXTERN NSString *const BBLiveBaseAttachmentAttributeName;
 
 @end
 
+@interface BBLiveBaseTextRunDelegate : NSObject
+
+@property (nonatomic, assign) CGFloat ascent;
+@property (nonatomic, assign) CGFloat descent;
+@property (nonatomic, assign) CGFloat width;
+
+@property (nullable, nonatomic, copy) NSDictionary *userInfo;
+
+/// Need CFRelease() the return value !!!
+- (nullable CTRunDelegateRef)CTRunDelegate CF_RETURNS_RETAINED;
+
+@end
+
 NS_ASSUME_NONNULL_END
