@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5C058ACA224D3A86002ECA48 /* MemoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C058AC9224D3A86002ECA48 /* MemoryWatcher.m */; };
 		5C5006AD22193535000F7A01 /* BBLiveBaseTextLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C5006AC22193535000F7A01 /* BBLiveBaseTextLayout.m */; };
 		5C5006B02219370B000F7A01 /* BBLiveBaseTextLayoutBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C5006AF2219370B000F7A01 /* BBLiveBaseTextLayoutBuilder.m */; };
 		5C5E99FA2219429400AE2320 /* BBLiveBaseAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = 5C5E99F92219429400AE2320 /* BBLiveBaseAttachment.m */; };
@@ -21,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5C058AC8224D3A86002ECA48 /* MemoryWatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MemoryWatcher.h; sourceTree = "<group>"; };
+		5C058AC9224D3A86002ECA48 /* MemoryWatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MemoryWatcher.m; sourceTree = "<group>"; };
 		5C5006AB22193535000F7A01 /* BBLiveBaseTextLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBLiveBaseTextLayout.h; sourceTree = "<group>"; };
 		5C5006AC22193535000F7A01 /* BBLiveBaseTextLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BBLiveBaseTextLayout.m; sourceTree = "<group>"; };
 		5C5006AE2219370B000F7A01 /* BBLiveBaseTextLayoutBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBLiveBaseTextLayoutBuilder.h; sourceTree = "<group>"; };
@@ -81,6 +84,8 @@
 				5CF0A02121E737D8000EA401 /* TableViewCell.m */,
 				5C86CAC221DF554800A7925E /* ViewController.h */,
 				5C86CAC321DF554800A7925E /* ViewController.m */,
+				5C058AC8224D3A86002ECA48 /* MemoryWatcher.h */,
+				5C058AC9224D3A86002ECA48 /* MemoryWatcher.m */,
 				5C86CABF21DF554800A7925E /* AppDelegate.h */,
 				5C86CAC021DF554800A7925E /* AppDelegate.m */,
 				5C86CAC521DF554800A7925E /* Main.storyboard */,
@@ -188,6 +193,7 @@
 				5C5E99FA2219429400AE2320 /* BBLiveBaseAttachment.m in Sources */,
 				5C5006AD22193535000F7A01 /* BBLiveBaseTextLayout.m in Sources */,
 				5C86CAC421DF554800A7925E /* ViewController.m in Sources */,
+				5C058ACA224D3A86002ECA48 /* MemoryWatcher.m in Sources */,
 				5CF0A02221E737D8000EA401 /* TableViewCell.m in Sources */,
 				5C86CACF21DF554A00A7925E /* main.m in Sources */,
 				5C86CAC121DF554800A7925E /* AppDelegate.m in Sources */,

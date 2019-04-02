@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 
+#import "MemoryWatcher.h"
+
 @interface ViewController ()
 
 @property (nonatomic, strong) NSMutableArray<CellViewModel *> *viewModels;
@@ -20,33 +22,67 @@
 
 - (IBAction)refresh:(UIBarButtonItem *)sender {
 
-    if (self.timer.isValid) {
-        self.timer.fireDate = [NSDate distantFuture];
+    if (!self.timer.isValid) {
+        [self _setupTimer];
     } else {
-        self.timer.fireDate = [NSDate distantPast];
-    }
-
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-
-    if (!self.timer) {
-        __weak typeof(self) ws = self;
-        self.timer = [NSTimer timerWithTimeInterval:0.1f repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [ws.viewModels addObject:[CellViewModel new]];
-            [ws.tableView reloadData];
-        }];
-        [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
-    }
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    if (self.timer) {
         [self.timer invalidate];
-        self.timer = nil;
     }
+
+}
+
+- (void)_setupTimer {
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:0.4f
+                                                  target:self
+                                                selector:@selector(_timerAction)
+                                                userInfo:nil
+                                                 repeats:YES];
+}
+
+- (void)_timerAction {
+
+    const int count = 30;
+
+    NSInteger total = self.viewModels.count;
+
+    if (total > 200) {
+        [MemoryWatcher log];
+        [self.viewModels removeAllObjects];
+        [self.tableView reloadData];
+    }
+
+    __block NSMutableArray *array = nil;
+    [self _async:^{
+        array = [self _itemViewModelsWithCount:count];
+    } completion:^{
+        [self.viewModels addObjectsFromArray:array];
+        NSInteger total = self.viewModels.count;
+        self.title = @(total).stringValue;
+        [self.tableView reloadData];
+
+        if (!total) return;
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:total-1 inSection:0]
+                              atScrollPosition:UITableViewScrollPositionNone animated:NO];
+    }];
+}
+
+- (void)_async:(void (^)(void))block completion:(void (^)(void))completion {
+    static dispatch_queue_t layoutQueue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        layoutQueue = dispatch_queue_create("com.bilibili.live.layout.danmaku", NULL);
+    });
+    dispatch_async(layoutQueue, ^{
+        if (block) block();
+        if (completion) dispatch_async(dispatch_get_main_queue(), completion);
+    });
+}
+
+- (NSMutableArray *)_itemViewModelsWithCount:(NSUInteger)count {
+    NSMutableArray *temp = [NSMutableArray array];
+    while (count--) {
+        [temp addObject:[CellViewModel new]];
+    }
+    return temp;
 }
 
 - (void)viewDidLoad {
@@ -54,11 +90,20 @@
     [self.tableView registerClass:TableViewCell.class forCellReuseIdentifier:@"TableViewCell"];
     self.tableView.backgroundColor = HEXCOLOR(0xeeeeee);
 
-    int count = 100;
-    self.viewModels = [NSMutableArray arrayWithCapacity:count];
-    while (count--) {
-        [self.viewModels addObject:[CellViewModel new]];
+    self.viewModels = [NSMutableArray array];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    if (self.timer) {
+        [self.timer invalidate];
+        self.timer = nil;
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self _setupTimer];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

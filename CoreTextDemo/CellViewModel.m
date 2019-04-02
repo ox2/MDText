@@ -34,9 +34,6 @@ static int __index = 0;
 
     NSString *name = @"哔哩哔哩:";
     NSString *text = [@"HXabj“钢之炼金厨师:ᘡAmy🌀晴天冠 ୨୧˙˳⋆ ԅ(¯﹃¯ԅ)”穿着、斩杀、饥渴、鬼化、以及生存最后斩碎世界！stringRange用于创建框架集的属性字符串的范围，在要装入框架的线条中进行排版。如果范围的长度部分设置为0，则框架设置继续添加线条，直到文本或空间用完为止。一个CGPath对象，指定框架的形状。在macOS 10.7或更高版本以及iOS 4.2或更高版本的版本中，路径可以是非矩形的。" stringByAppendingString:@(__index++).stringValue];
-    if (__index % 3 == 0) {
-        text = @"则框架设置继续添加线条，直到文本或空间用完为止";
-    }
 
     self.attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14]};
 
@@ -76,7 +73,8 @@ static int __index = 0;
 
 - (void)appendMedal {
 
-    NSString *s = __index % 2 == 0 ? @"啊啊啊" : @"啊HEXO";
+    NSString *s = __index % 2 == 0 ? @"啊" : @"啊HEXO";
+    s = [s stringByAppendingString:@(__index).stringValue];
 
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.lineSpacing = 0;
@@ -111,7 +109,14 @@ static int __index = 0;
 }
 
 - (void)appendHost {
-    NSAttributedString *text = [[NSAttributedString alloc] initWithString:@"房管" attributes:@{NSForegroundColorAttributeName: HEXCOLOR(0xFEA249), NSFontAttributeName: [UIFont systemFontOfSize:10],NSBackgroundColorAttributeName:self.textbgcolor}];
+    NSAttributedString *text =
+    [[NSAttributedString alloc] initWithString:[@"房管" stringByAppendingString:@(__index).stringValue]
+                                    attributes:@{
+                                                 NSForegroundColorAttributeName: HEXCOLOR(0xFEA249),
+                                                 NSFontAttributeName: [UIFont systemFontOfSize:10],
+                                                 NSBackgroundColorAttributeName:self.textbgcolor
+
+                                                 }];
     BBLiveBaseBorderAttachment * attachment = [[BBLiveBaseBorderAttachment alloc] initWithText:text subText:nil offset:CGPointMake(4, 2) minSize:CGSizeMake(16, 16)];
     attachment.action = @"点击了房管";
     attachment.strokeColor = HEXCOLOR(0xFEA249);
@@ -133,7 +138,7 @@ static int __index = 0;
 }
 
 - (void)appendLink {
-    [self.builder appendAttributedString:[[NSAttributedString alloc] initWithString:@"啊啊啊Link test 啊" attributes:@{
+    [self.builder appendAttributedString:[[NSAttributedString alloc] initWithString:@"啊Link test 啊" attributes:@{
                                                                                                               NSLinkAttributeName: @"link 22333",NSFontAttributeName: [UIFont systemFontOfSize:14]
                                                                                                               }]];
 }
