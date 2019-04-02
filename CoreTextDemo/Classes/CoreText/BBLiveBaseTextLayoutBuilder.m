@@ -81,13 +81,12 @@
     delegate.width = width;
     CTRunDelegateRef delegateRef = delegate.CTRunDelegate;
 
-    unichar objectReplacementChar = 0xFFFC; // 占位符
-    NSString * content = [NSString stringWithCharacters:&objectReplacementChar length:1];
-    NSMutableAttributedString * space = [[NSMutableAttributedString alloc] initWithString:content attributes:attributes];
-    CFAttributedStringSetAttribute((CFMutableAttributedStringRef)space, CFRangeMake(0, 1),
-                                   kCTRunDelegateAttributeName, delegateRef);
+    const unichar objectReplacementChar = 0xFFFC; // 占位符
+    NSString *content = [NSString stringWithCharacters:&objectReplacementChar length:1];
+    NSMutableDictionary *delegateAttributes = attributes.mutableCopy;
+    [delegateAttributes setValue:(__bridge id)(delegateRef) forKey:(id)kCTRunDelegateAttributeName];
     CFRelease(delegateRef);
-    return space;
+    return [[NSAttributedString alloc] initWithString:content attributes:delegateAttributes];
 }
 
 @end

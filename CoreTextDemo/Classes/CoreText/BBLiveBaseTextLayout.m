@@ -25,7 +25,10 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
 
 - (instancetype)initWithAttributedString:(NSAttributedString *)string rect:(CGRect)rect {
     if (self = [super init]) {
-        CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)string);
+
+        CFAttributedStringRef ref = (__bridge CFAttributedStringRef)string;
+
+        CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(ref);
         rect.size = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0,0), nil, rect.size, nil);
 
         _ctFrame = [self createFrameWithFramesetter:framesetter rect:rect];
@@ -44,7 +47,7 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
     CGPathAddRect(path, NULL, rect);
 
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, NULL);
-    CFRelease(path);
+    CGPathRelease(path);
     return frame;
 }
 
@@ -57,8 +60,8 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
 
 - (void)fetchAttachment {
 
-    NSArray *lines = (NSArray *)CTFrameGetLines(_ctFrame);
-    NSUInteger lineCount = [lines count];
+    CFArrayRef lines = CTFrameGetLines(_ctFrame);
+    NSUInteger lineCount = CFArrayGetCount(lines);
     CGPoint lineOrigins[lineCount];
     CTFrameGetLineOrigins(_ctFrame, CFRangeMake(0, 0), lineOrigins);
 
@@ -67,15 +70,16 @@ NSString *const BBLiveBaseAttachmentAttributeName = @"BBLiveBaseAttachment";
     NSMutableArray *attachments = [NSMutableArray array];
 
     for (int i = dataIndex; i < lineCount; ++i) {
-        CTLineRef line = (__bridge CTLineRef)lines[i];
-        NSArray * runObjArray = (NSArray *)CTLineGetGlyphRuns(line);
-        for (id runObj in runObjArray) {
-            CTRunRef run = (__bridge CTRunRef)runObj;
-            NSDictionary *runAttributes = (NSDictionary *)CTRunGetAttributes(run);
-            BBLiveBaseAttachment *attachment = runAttributes[BBLiveBaseAttachmentAttributeName];
+        CTLineRef line = CFArrayGetValueAtIndex(lines, i);
+        CFArrayRef runs = CTLineGetGlyphRuns(line);
+        NSUInteger runCount = CFArrayGetCount(runs);
+        for (int j = 0; j < runCount; j++) {
+            CTRunRef run = CFArrayGetValueAtIndex(runs, j);
+            CFDictionaryRef runAttributes = CTRunGetAttributes(run);
+            BBLiveBaseAttachment *attachment = CFDictionaryGetValue(runAttributes, (__bridge CFStringRef)(BBLiveBaseAttachmentAttributeName));
             if (!attachment) continue;
 
-            CTRunDelegateRef delegate = (__bridge CTRunDelegateRef)[runAttributes valueForKey:(id)kCTRunDelegateAttributeName];
+            CTRunDelegateRef delegate = CFDictionaryGetValue(runAttributes, kCTRunDelegateAttributeName);
 
             BBLiveBaseTextRunDelegate * runDelegate = CTRunDelegateGetRefCon(delegate);
             if (![runDelegate isKindOfClass:[BBLiveBaseTextRunDelegate class]]) continue;

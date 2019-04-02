@@ -62,7 +62,7 @@
 - (void)setRect:(CGRect)rect {
     [super setRect:rect];
     [self _updateTextRect];
-    [self _createBorderImage];
+    _image = [self _createBorderImage];
 }
 
 - (void)_updateTextRect {
@@ -87,40 +87,43 @@
     }
 }
 
-- (void)_createBorderImage {
+- (UIImage *)_createBorderImage {
 
-    CGRect imageRect = self.rect;
-    imageRect.origin = CGPointZero;
+    @autoreleasepool {
+        CGRect imageRect = self.rect;
+        imageRect.origin = CGPointZero;
 
-    UIGraphicsBeginImageContextWithOptions(self.rect.size, NO, [UIScreen mainScreen].scale);
-    CGContextRef context = UIGraphicsGetCurrentContext();
+        UIGraphicsBeginImageContextWithOptions(self.rect.size, NO, [UIScreen mainScreen].scale);
+        CGContextRef context = UIGraphicsGetCurrentContext();
 
-    if (!context) return;
+        if (!context) return nil;
 
-    CGFloat lineWidth = self.strokeWidth;
-    UIColor *fillColor = self.fillColor ? : [UIColor clearColor];
-    UIColor *strokeColor = self.strokeColor ? : [UIColor clearColor];
+        CGFloat lineWidth = self.strokeWidth;
+        UIColor *fillColor = self.fillColor ? : [UIColor clearColor];
+        UIColor *strokeColor = self.strokeColor ? : [UIColor clearColor];
 
-    // 边框
-    [self drawBorderRect:imageRect lineWidth:lineWidth strokeColor:strokeColor fillColor:fillColor];
+        // 边框
+        [self drawBorderRect:imageRect lineWidth:lineWidth strokeColor:strokeColor fillColor:fillColor];
 
-    // 右边白色底图
-    BOOL single = !self.subText;
-    if (!single) {
-        CGFloat height = CGRectGetHeight(imageRect);
+        // 右边白色底图
+        BOOL single = !self.subText;
+        if (!single) {
+            CGFloat height = CGRectGetHeight(imageRect);
 
-        imageRect.origin.x = CGRectGetMaxX(imageRect) - height - lineWidth;
-        imageRect.size.width = height + lineWidth;
+            imageRect.origin.x = CGRectGetMaxX(imageRect) - height - lineWidth;
+            imageRect.size.width = height + lineWidth;
 
-        [self drawWhiteRect:imageRect radius:_cornerRadius];
+            [self drawWhiteRect:imageRect radius:_cornerRadius];
+        }
+
+        // 文字
+        if (self.text) [self.text drawInRect:self.textRect];
+        if (self.subText) [self.subText drawInRect:self.subTextRect];
+
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return image;
     }
-
-    // 文字
-    if (self.text) [self.text drawInRect:self.textRect];
-    if (self.subText) [self.subText drawInRect:self.subTextRect];
-
-    _image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
 }
 
 - (void)drawBorderRect:(CGRect)rect lineWidth:(CGFloat)lineWidth strokeColor:(UIColor *)strokeColor fillColor:(UIColor *)fillColor {
